@@ -50,6 +50,8 @@ class BrickletDualButton(Device):
     LED_LEFT = 0
     LED_RIGHT = 1
 
+    RESPONSE_EXPECTED_ALWAYS_FALSE = 0
+
     def __init__(self, uid, ipcon):
         """
         Creates an object with the unique device ID *uid* and adds it to

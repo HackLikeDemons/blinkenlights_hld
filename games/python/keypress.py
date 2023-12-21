@@ -5,7 +5,6 @@ from tinkerforge.bricklet_dual_button import DualButton
 
 import sys
 import os
-
 from Queue import Queue
 from threading import Thread
 

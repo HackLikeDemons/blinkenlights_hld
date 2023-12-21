@@ -5,20 +5,20 @@ from tinkerforge.bricklet_led_strip import LEDStrip
 HAS_GUI = False
 
 # General
-HOST = 'localhost'
+HOST = '192.168.0.230'
 PORT = 4223
 
 # Required Bricklets
-UID_LED_STRIP_BRICKLET = 'Fjy'
+UID_LED_STRIP_BRICKLET = 'yph'
 
 # Optional Bricklets (use None as UID if not connected)
 UID_MULTI_TOUCH_BRICKLET = None#'pax'
-UID_DUAL_BUTTON_BRICKLET = (None, None)#('dbb', 'dbc')
+UID_DUAL_BUTTON_BRICKLET = ("vSq", None)#('vSq', 'dbc')
 UID_SEGMENT_DISPLAY_4X7_BRICKLET = None#'xyz'
 UID_PIEZO_SPEAKER_BRICKLET = None#'XYZ'
 
 # Set this to True if LEDStripV2 Bricklet is used
-IS_LED_STRIP_V2 = True
+IS_LED_STRIP_V2 = False
 
 # Size of LED Pixel matrix
 LED_ROWS = 20

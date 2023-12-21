@@ -13,7 +13,7 @@ UID_LED_STRIP_BRICKLET = "yph" # Change XYZ to the UID of your LED Strip Brickle
 
 # Optional Bricklets (use None as UID if not connected)
 UID_MULTI_TOUCH_BRICKLET = None#'pax'
-UID_DUAL_BUTTON_BRICKLET = (None, None)#('dbb', 'dbc')
+UID_DUAL_BUTTON_BRICKLET = ("vSq", None)#('dbb', 'dbc')
 UID_SEGMENT_DISPLAY_4X7_BRICKLET = None#'xyz'
 UID_PIEZO_SPEAKER_BRICKLET = None#'XYZ'
 
