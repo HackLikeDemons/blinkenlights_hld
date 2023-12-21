@@ -15,7 +15,7 @@ from tinkerforge.bricklet_led_strip_v2 import LEDStripV2
 from tinkerforge.bricklet_piezo_speaker import PiezoSpeaker
 from tinkerforge.bricklet_segment_display_4x7 import SegmentDisplay4x7
 
-import config
+import games.python.games_config as games_config
 from repeated_timer import RepeatedTimer
 from keypress import KeyPress
 
@@ -32,17 +32,17 @@ class TetrisSegmentDisplay:
         self.okay = False
         self.ipcon = ipcon
 
-        if not config.UID_SEGMENT_DISPLAY_4X7_BRICKLET:
+        if not games_config.UID_SEGMENT_DISPLAY_4X7_BRICKLET:
             print("Not Configured: Segment Display 4x7")
             return
 
-        self.sd = SegmentDisplay4x7(config.UID_SEGMENT_DISPLAY_4X7_BRICKLET, self.ipcon)
+        self.sd = SegmentDisplay4x7(games_config.UID_SEGMENT_DISPLAY_4X7_BRICKLET, self.ipcon)
 
         try:
             self.sd.get_counter_value()
-            print("Found: Segment Display 4x7 ({0})").format(config.UID_SEGMENT_DISPLAY_4X7_BRICKLET)
+            print("Found: Segment Display 4x7 ({0})").format(games_config.UID_SEGMENT_DISPLAY_4X7_BRICKLET)
         except:
-            print("Not Found: Segment Display 4x7 ({0})").format(config.UID_SEGMENT_DISPLAY_4X7_BRICKLET)
+            print("Not Found: Segment Display 4x7 ({0})").format(games_config.UID_SEGMENT_DISPLAY_4X7_BRICKLET)
             return
 
         self.okay = True
@@ -74,17 +74,17 @@ class TetrisSpeaker:
         self.okay = False
         self.ipcon = ipcon
 
-        if not config.UID_PIEZO_SPEAKER_BRICKLET:
+        if not games_config.UID_PIEZO_SPEAKER_BRICKLET:
             print("Not Configured: Piezo Speaker")
             return
 
-        self.speaker = PiezoSpeaker(config.UID_PIEZO_SPEAKER_BRICKLET, self.ipcon)
+        self.speaker = PiezoSpeaker(games_config.UID_PIEZO_SPEAKER_BRICKLET, self.ipcon)
 
         try:
             self.speaker.get_identity()
-            print("Found: Piezo Speaker ({0})").format(config.UID_PIEZO_SPEAKER_BRICKLET)
+            print("Found: Piezo Speaker ({0})").format(games_config.UID_PIEZO_SPEAKER_BRICKLET)
         except:
-            print("Not Found: Piezo Speaker ({0})").format(config.UID_PIEZO_SPEAKER_BRICKLET)
+            print("Not Found: Piezo Speaker ({0})").format(games_config.UID_PIEZO_SPEAKER_BRICKLET)
             return
 
         self.okay = True
@@ -115,8 +115,8 @@ class TetrisSpeaker:
 
 
 class Tetris:
-    FIELD_ROWS = config.LED_ROWS+4 # 22 rows in playfield, with only 20 columns visible and 2 coloms border
-    FIELD_COLS = config.LED_COLS+2 # 10 columns in playfield, 2 column border
+    FIELD_ROWS = games_config.LED_ROWS+4 # 22 rows in playfield, with only 20 columns visible and 2 coloms border
+    FIELD_COLS = games_config.LED_COLS+2 # 10 columns in playfield, 2 column border
 
     FIELD_ROW_START = 2
     FIELD_COL_START = 4
@@ -207,26 +207,26 @@ class Tetris:
         self.okay = False
         self.ipcon = ipcon
 
-        if not config.UID_LED_STRIP_BRICKLET:
+        if not games_config.UID_LED_STRIP_BRICKLET:
             print("Not Configured: LED Strip or LED Strip V2 (required)")
             return
 
-        if not config.IS_LED_STRIP_V2:
-            self.led_strip = LEDStrip(config.UID_LED_STRIP_BRICKLET, self.ipcon)
+        if not games_config.IS_LED_STRIP_V2:
+            self.led_strip = LEDStrip(games_config.UID_LED_STRIP_BRICKLET, self.ipcon)
         else:
-            self.led_strip = LEDStripV2(config.UID_LED_STRIP_BRICKLET, self.ipcon)
+            self.led_strip = LEDStripV2(games_config.UID_LED_STRIP_BRICKLET, self.ipcon)
 
         try:
             self.led_strip.get_frame_duration()
-            if not config.IS_LED_STRIP_V2:
-                print("Found: LED Strip ({0})".format(config.UID_LED_STRIP_BRICKLET))
+            if not games_config.IS_LED_STRIP_V2:
+                print("Found: LED Strip ({0})".format(games_config.UID_LED_STRIP_BRICKLET))
             else:
-                print("Found: LED Strip V2 ({0})".format(config.UID_LED_STRIP_BRICKLET))
+                print("Found: LED Strip V2 ({0})".format(games_config.UID_LED_STRIP_BRICKLET))
         except:
-            if not config.IS_LED_STRIP_V2:
-                print("Not Found: LED Strip ({0})".format(config.UID_LED_STRIP_BRICKLET))
+            if not games_config.IS_LED_STRIP_V2:
+                print("Not Found: LED Strip ({0})".format(games_config.UID_LED_STRIP_BRICKLET))
             else:
-                print("Not Found: LED Strip V2({0})".format(config.UID_LED_STRIP_BRICKLET))
+                print("Not Found: LED Strip V2({0})".format(games_config.UID_LED_STRIP_BRICKLET))
             return
 
         self.kp = KeyPress(self.ipcon)
@@ -236,14 +236,14 @@ class Tetris:
         self.okay = True
 
         self.led_strip.set_frame_duration(40)
-        if not config.IS_LED_STRIP_V2:
+        if not games_config.IS_LED_STRIP_V2:
             self.led_strip.register_callback(self.led_strip.CALLBACK_FRAME_RENDERED,
                                              self.frame_rendered)
         else:
             self.led_strip.register_callback(self.led_strip.CALLBACK_FRAME_STARTED,
                                              self.frame_rendered)
 
-        self.led_strip.set_channel_mapping(config.CHANNEL_MAPPING)
+        self.led_strip.set_channel_mapping(games_config.CHANNEL_MAPPING)
 
         self.init_game()
 
@@ -329,7 +329,7 @@ class Tetris:
                 frame.append(self.COLORS[field[row][col]][1])
                 frame.append(self.COLORS[field[row][col]][2])
 
-        if not config.IS_LED_STRIP_V2:
+        if not games_config.IS_LED_STRIP_V2:
             # Make chunks of size 16
             r_chunk = [r[i:i+16] for i in range(0, len(r), 16)]
             g_chunk = [g[i:i+16] for i in range(0, len(g), 16)]
@@ -423,7 +423,7 @@ class Tetris:
 
     def next_game_over_step(self):
         for row in range(len(self.GAME_OVER_TEXT)):
-            for col in range(config.LED_COLS):
+            for col in range(games_config.LED_COLS):
                 k = (self.game_over_position+col) % len(self.GAME_OVER_TEXT[0])
                 self.playfield[7+row][1+col] = self.GAME_OVER_COLORS[self.GAME_OVER_TEXT[row][k]]
 
@@ -483,10 +483,10 @@ class Tetris:
                 self.move_tetromino(0, 0, (self.tetromino_form+1) % 4)
             elif key == 'r':
                 self.init_game()
-            elif not config.HAS_GUI and key == 'q':
+            elif not games_config.HAS_GUI and key == 'q':
                 break
 
-        if not config.IS_LED_STRIP_V2:
+        if not games_config.IS_LED_STRIP_V2:
             self.led_strip.register_callback(self.led_strip.CALLBACK_FRAME_RENDERED, None)
         else:
             self.led_strip.register_callback(self.led_strip.CALLBACK_FRAME_STARTED, None)
@@ -498,7 +498,7 @@ class Tetris:
 if __name__ == "__main__":
     # Create IP Connection and connect it
     ipcon = IPConnection()
-    ipcon.connect(config.HOST, config.PORT)
+    ipcon.connect(games_config.HOST, games_config.PORT)
 
     # Create Tetris object and start game loop
     tetris = Tetris(ipcon)

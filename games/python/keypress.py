@@ -10,7 +10,7 @@ from threading import Thread
 
 from repeated_timer import RepeatedTimer
 
-import config
+import games_config
 
 class MultiTouchInput:
     current_state = 0
@@ -18,19 +18,19 @@ class MultiTouchInput:
     touch_timer = None
 
     def __init__(self, ipcon, key_queue):
-        if not config.UID_MULTI_TOUCH_BRICKLET:
+        if not games_config.UID_MULTI_TOUCH_BRICKLET:
             print("Not Configured: Multi Touch")
             return
 
         self.key_queue = key_queue
         self.ipcon = ipcon
-        self.mt = MultiTouch(config.UID_MULTI_TOUCH_BRICKLET, self.ipcon)
+        self.mt = MultiTouch(games_config.UID_MULTI_TOUCH_BRICKLET, self.ipcon)
 
         try:
             self.mt.get_electrode_sensitivity()
-            print("Found: Multi Touch ({0})").format(config.UID_MULTI_TOUCH_BRICKLET)
+            print("Found: Multi Touch ({0})").format(games_config.UID_MULTI_TOUCH_BRICKLET)
         except:
-            print("Not Found: Multi Touch ({0})").format(config.UID_MULTI_TOUCH_BRICKLET)
+            print("Not Found: Multi Touch ({0})").format(games_config.UID_MULTI_TOUCH_BRICKLET)
             return
 
         self.mt.set_electrode_sensitivity(100)
@@ -43,7 +43,7 @@ class MultiTouchInput:
             self.touch_timer.stop()
 
     def state_to_queue(self, state):
-        for item in config.KEYMAP_MULTI_TOUCH.items():
+        for item in games_config.KEYMAP_MULTI_TOUCH.items():
             if state & (1 << item[0]):
                 self.key_queue.put(item[1])
 
@@ -73,40 +73,40 @@ class DualButtonInput:
     press_timer = None
 
     def __init__(self, ipcon, key_queue):
-        if not config.UID_DUAL_BUTTON_BRICKLET[0]:
+        if not games_config.UID_DUAL_BUTTON_BRICKLET[0]:
             print("Not Configured: Dual Button 1")
 
-        if not config.UID_DUAL_BUTTON_BRICKLET[1]:
+        if not games_config.UID_DUAL_BUTTON_BRICKLET[1]:
             print("Not Configured: Dual Button 2")
 
         self.key_queue = key_queue
         self.ipcon = ipcon
 
-        if config.UID_DUAL_BUTTON_BRICKLET[0]:
-            self.db1 = DualButton(config.UID_DUAL_BUTTON_BRICKLET[0], self.ipcon)
+        if games_config.UID_DUAL_BUTTON_BRICKLET[0]:
+            self.db1 = DualButton(games_config.UID_DUAL_BUTTON_BRICKLET[0], self.ipcon)
         else:
             self.db1 = None
 
-        if config.UID_DUAL_BUTTON_BRICKLET[1]:
-            self.db2 = DualButton(config.UID_DUAL_BUTTON_BRICKLET[1], self.ipcon)
+        if games_config.UID_DUAL_BUTTON_BRICKLET[1]:
+            self.db2 = DualButton(games_config.UID_DUAL_BUTTON_BRICKLET[1], self.ipcon)
         else:
             self.db2 = None
 
         if self.db1:
             try:
                 self.db1.get_button_state()
-                print("Found: Dual Button 1 ({0})").format(config.UID_DUAL_BUTTON_BRICKLET[0])
+                print("Found: Dual Button 1 ({0})").format(games_config.UID_DUAL_BUTTON_BRICKLET[0])
             except:
                 self.db1 = None
-                print("Not Found: Dual Button 1 ({0})").format(config.UID_DUAL_BUTTON_BRICKLET[0])
+                print("Not Found: Dual Button 1 ({0})").format(games_config.UID_DUAL_BUTTON_BRICKLET[0])
 
         if self.db2:
             try:
                 self.db2.get_button_state()
-                print("Found: Dual Button 2 ({0})").format(config.UID_DUAL_BUTTON_BRICKLET[1])
+                print("Found: Dual Button 2 ({0})").format(games_config.UID_DUAL_BUTTON_BRICKLET[1])
             except:
                 self.db2 = None
-                print("Not Found: Dual Button 2 ({0})").format(config.UID_DUAL_BUTTON_BRICKLET[1])
+                print("Not Found: Dual Button 2 ({0})").format(games_config.UID_DUAL_BUTTON_BRICKLET[1])
 
         if self.db1:
             self.db1.register_callback(self.db1.CALLBACK_STATE_CHANGED, self.cb_state_changed1)
@@ -140,7 +140,7 @@ class DualButtonInput:
         self.state_to_queue(changed_state & self.current_state)
 
     def state_to_queue(self, state):
-        for item in config.KEYMAP_DUAL_BUTTON.items():
+        for item in games_config.KEYMAP_DUAL_BUTTON.items():
             if state & (1 << item[0]):
                 self.key_queue.put(item[1])
 
@@ -247,7 +247,7 @@ class KeyPress:
         self.mti = MultiTouchInput(ipcon, self.key_queue)
         self.dbi = DualButtonInput(ipcon, self.key_queue)
 
-        if config.HAS_GUI:
+        if games_config.HAS_GUI:
             self.kbi = None
         else:
             self.kbi = KeyBoardInput(self.key_queue)

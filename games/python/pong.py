@@ -11,7 +11,7 @@ from tinkerforge.bricklet_led_strip import LEDStrip
 from tinkerforge.bricklet_led_strip_v2 import LEDStripV2
 from tinkerforge.bricklet_piezo_speaker import PiezoSpeaker
 
-import config
+import games_config as games_config
 from repeated_timer import RepeatedTimer
 from keypress import KeyPress
 
@@ -21,17 +21,17 @@ class PongSpeaker:
         self.okay = False
         self.ipcon = ipcon
 
-        if not config.UID_PIEZO_SPEAKER_BRICKLET:
+        if not games_config.UID_PIEZO_SPEAKER_BRICKLET:
             print("Not Configured: Piezo Speaker")
             return
 
-        self.speaker = PiezoSpeaker(config.UID_PIEZO_SPEAKER_BRICKLET, self.ipcon)
+        self.speaker = PiezoSpeaker(games_config.UID_PIEZO_SPEAKER_BRICKLET, self.ipcon)
 
         try:
             self.speaker.get_identity()
-            print("Found: Piezo Speaker ({0})".format(config.UID_PIEZO_SPEAKER_BRICKLET))
+            print("Found: Piezo Speaker ({0})".format(games_config.UID_PIEZO_SPEAKER_BRICKLET))
         except:
-            print("Not Found: Piezo Speaker ({0})".format(config.UID_PIEZO_SPEAKER_BRICKLET))
+            print("Not Found: Piezo Speaker ({0})".format(games_config.UID_PIEZO_SPEAKER_BRICKLET))
             return
 
         self.okay = True
@@ -62,7 +62,11 @@ class PongSpeaker:
 
 
 class Pong:
-    PADDLE_SIZE = 3
+    test_mode = False
+    if test_mode == True:
+        PADDLE_SIZE = 1
+    else: 
+        PADDLE_SIZE = 3
 
 # Antialased ball?
 #    PONG_COLOR_INDEX_BALL_TOP = 8
@@ -139,7 +143,7 @@ class Pong:
             "002"],
     }
 
-    playfield = [x[:] for x in [[0]*config.LED_COLS]*config.LED_ROWS]
+    playfield = [x[:] for x in [[0]*games_config.LED_COLS]*games_config.LED_ROWS]
     score = [0, 0]
     paddle_position_x = [4, 15]
     paddle_position_y = [3, 3]
@@ -147,31 +151,32 @@ class Pong:
     ball_direction = [0.1, 0.2]
     timer = None
     loop = True
+    
 
     def __init__(self, ipcon):
         self.okay = False
         self.ipcon = ipcon
 
-        if not config.UID_LED_STRIP_BRICKLET:
+        if not games_config.UID_LED_STRIP_BRICKLET:
             print("Not Configured: LED Strip or LED Strip V2 (required)")
             return
 
-        if not config.IS_LED_STRIP_V2:
-            self.led_strip = LEDStrip(config.UID_LED_STRIP_BRICKLET, self.ipcon)
+        if not games_config.IS_LED_STRIP_V2:
+            self.led_strip = LEDStrip(games_config.UID_LED_STRIP_BRICKLET, self.ipcon)
         else:
-            self.led_strip = LEDStripV2(config.UID_LED_STRIP_BRICKLET, self.ipcon)
+            self.led_strip = LEDStripV2(games_config.UID_LED_STRIP_BRICKLET, self.ipcon)
 
         try:
             self.led_strip.get_frame_duration()
-            if not config.IS_LED_STRIP_V2:
-                print("Found: LED Strip ({0})".format(config.UID_LED_STRIP_BRICKLET))
+            if not games_config.IS_LED_STRIP_V2:
+                print("Found: LED Strip ({0})".format(games_config.UID_LED_STRIP_BRICKLET))
             else:
-                print("Found: LED Strip V2 ({0})".format(config.UID_LED_STRIP_BRICKLET))
+                print("Found: LED Strip V2 ({0})".format(games_config.UID_LED_STRIP_BRICKLET))
         except:
-            if not config.IS_LED_STRIP_V2:
-                print("Not Found: LED Strip ({0})".format(config.UID_LED_STRIP_BRICKLET))
+            if not games_config.IS_LED_STRIP_V2:
+                print("Not Found: LED Strip ({0})".format(games_config.UID_LED_STRIP_BRICKLET))
             else:
-                print("Not Found: LED Strip V2({0})".format(config.UID_LED_STRIP_BRICKLET))
+                print("Not Found: LED Strip V2({0})".format(games_config.UID_LED_STRIP_BRICKLET))
             return
 
         self.kp = KeyPress(self.ipcon)
@@ -181,16 +186,21 @@ class Pong:
 
         self.led_strip.set_frame_duration(40)
 
-        if not config.IS_LED_STRIP_V2:
+        if not games_config.IS_LED_STRIP_V2:
             self.led_strip.register_callback(self.led_strip.CALLBACK_FRAME_RENDERED,
                                              self.frame_rendered)
         else:
             self.led_strip.register_callback(self.led_strip.CALLBACK_FRAME_STARTED,
                                              self.frame_rendered)
 
-        self.led_strip.set_channel_mapping(config.CHANNEL_MAPPING)
+        self.led_strip.set_channel_mapping(games_config.CHANNEL_MAPPING)
 
         self.init_game()
+
+    def wait_for_keypress(self):
+        key = None
+        while key == None:
+            key = self.kp.read_single_keypress().lower()
 
     def init_game(self):
         self.new_ball()
@@ -216,8 +226,8 @@ class Pong:
         b = []
         frame = []
 
-        for row in range(config.LED_ROWS):
-            col_range = range(config.LED_COLS)
+        for row in range(games_config.LED_ROWS):
+            col_range = range(games_config.LED_COLS)
             if row % 2 == 0:
                 col_range = reversed(col_range)
             for col in col_range:
@@ -228,7 +238,7 @@ class Pong:
                 frame.append(self.COLORS[field[row][col]][1])
                 frame.append(self.COLORS[field[row][col]][2])
 
-        if not config.IS_LED_STRIP_V2:
+        if not games_config.IS_LED_STRIP_V2:
             # Make chunks of size 16
             r_chunk = [r[i:i+16] for i in range(0, len(r), 16)]
             g_chunk = [g[i:i+16] for i in range(0, len(g), 16)]
@@ -261,7 +271,7 @@ class Pong:
     def add_ball_to_playfield(self, field):
         x = max(0, min(19, int(self.ball_position[0])))
         y = max(0, min(9, int(self.ball_position[1])))
-        field[x][y] = config.PONG_COLOR_INDEX_BALL
+        field[x][y] = games_config.PONG_COLOR_INDEX_BALL
 
 # Antialased ball?
 #        x = max(0, min(19, self.ball_position[0]))
@@ -288,16 +298,31 @@ class Pong:
     def add_paddles_to_playfield(self, field):
         for player in range(2):
             for i in range(self.PADDLE_SIZE):
-                field[self.paddle_position_x[player]][self.paddle_position_y[player]+i] = config.PONG_COLOR_INDEX_PLAYER[player]
+                field[self.paddle_position_x[player]][self.paddle_position_y[player]+i] = games_config.PONG_COLOR_INDEX_PLAYER[player]
 
     def move_paddle(self, player, change):
         new_pos = self.paddle_position_y[player] + change
-        if new_pos >= 0 and new_pos <= config.LED_COLS - self.PADDLE_SIZE:
+        if new_pos >= 0 and new_pos <= games_config.LED_COLS - self.PADDLE_SIZE:
             self.paddle_position_y[player] = new_pos
-
-    def new_ball(self):
-        self.ball_position = [(config.LED_ROWS - 1.0) / 2.0, (config.LED_COLS - 1.0) / 2.0]
-        self.ball_direction = [random.choice([-0.2, 0.2]), random.choice([random.randrange(1, 9)/10.0, random.randrange(-9, -1)/10.0])]
+    
+    def new_ball(self):  
+        print("New ball")
+        self.paddle_position_y = [3, 3]
+        self.ball_direction = [0, 0]              
+        self.ball_position = [8, 5]        
+        time.sleep(0.5)                  
+        self.ball_position = [10, 5]
+        time.sleep(0.5)
+        self.ball_position = [8, 5]        
+        time.sleep(0.5)
+        self.ball_position = [10, 5]        
+        time.sleep(0.5)
+        self.ball_position = [8, 5]        
+        time.sleep(0.5)
+        self.ball_position = [10, 5]        
+        time.sleep(0.5)
+        self.ball_position = [(games_config.LED_ROWS - 1.0) / 2.0, (games_config.LED_COLS - 1.0) / 2.0]
+        self.ball_direction = [random.choice([-0.2, 0.2]), random.choice([random.randrange(1, 9)/10.0, random.randrange(-9, -1)/10.0])]  
 
     def tick(self):
         # Move ball
@@ -305,22 +330,23 @@ class Pong:
             self.ball_position[i] += self.ball_direction[i]
 
         # Wall collision top/bottom
-        if self.ball_position[1] < 0 or self.ball_position[1] >= config.LED_COLS:
+        if self.ball_position[1] < 0 or self.ball_position[1] >= games_config.LED_COLS:
             self.ball_direction[1] = -self.ball_direction[1]
 
         # Wall collision left/right
         def hit_left_right(player):
-            self.speaker.beep_sirene()
-            self.new_ball()
-
-            self.score[player] += 1
-            if self.score[player] > 9:
-                self.score[player] = 0
+            self.speaker.beep_sirene()                                  
+            self.score[player] += 1          
+            
+            if self.score[player] > 4: # reset the highscore if one player reached 5 points
+                self.init_game()             
+            
+            self.new_ball()                                    
 
         if self.ball_position[0] < 0:
             hit_left_right(1)
 
-        if self.ball_position[0] >= config.LED_ROWS:
+        if self.ball_position[0] >= games_config.LED_ROWS:
             hit_left_right(0)
 
         # Paddle collision
@@ -361,10 +387,10 @@ class Pong:
                 self.move_paddle(1, 1)
             elif key == 'r':
                 self.init_game()
-            elif not config.HAS_GUI and key == 'q':
+            elif not games_config.HAS_GUI and key == 'q':
                 break
 
-        if not config.IS_LED_STRIP_V2:
+        if not games_config.IS_LED_STRIP_V2:
             self.led_strip.register_callback(self.led_strip.CALLBACK_FRAME_RENDERED, None)
         else:
             self.led_strip.register_callback(self.led_strip.CALLBACK_FRAME_STARTED, None)
@@ -376,7 +402,7 @@ class Pong:
 if __name__ == "__main__":
     # Create IP Connection and connect it
     ipcon = IPConnection()
-    ipcon.connect(config.HOST, config.PORT)
+    ipcon.connect(games_config.HOST, games_config.PORT)
 
     # Create Pong object and start game loop
     pong = Pong(ipcon)
